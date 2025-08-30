@@ -207,12 +207,25 @@
   </style>
 </head>
 <body>
-  <h3>Instagram Time Tracker</h3>
+  <h3>Instagram/Youtube Time Tracker</h3>
   
   <!-- Today's Stats -->
   <div class="card today-stats">
     <h4>Today's Usage</h4>
-    <div class="time-display" id="todayTime">0m</div>
+    <div style="display: flex; justify-content: space-around; margin: 10px 0;">
+      <div style="text-align: center;">
+        <small style="color: rgba(255,255,255,0.8);">Instagram</small>
+        <div class="time-display" id="instagramTime" style="font-size: 20px;">0m</div>
+      </div>
+      <div style="text-align: center;">
+        <small style="color: rgba(255,255,255,0.8);">YouTube</small>
+        <div class="time-display" id="youtubeTime" style="font-size: 20px;">0m</div>
+      </div>
+    </div>
+    <div style="text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px; margin-top: 10px;">
+      <small style="color: rgba(255,255,255,0.8);">Total</small>
+      <div class="time-display" id="totalTime" style="font-size: 24px;">0m</div>
+    </div>
     <small id="todayDate"></small>
   </div>
   

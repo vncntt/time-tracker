@@ -1,6 +1,6 @@
-# Instagram Time Tracker
+# Instagram/Youtube Time Tracker
 
-Chrome extension that tracks daily Instagram usage and automatically emails a report at 11:59 PM.
+Chrome extension that tracks daily Instagram and YouTube usage and automatically emails a report at 11:59 PM.
 
 ## Setup
 
@@ -24,8 +24,8 @@ Chrome extension that tracks daily Instagram usage and automatically emails a re
 ## Features
 
 ### Core Functionality
-- Tracks time on instagram.com automatically
-- Sends daily report at 11:59 PM
+- Tracks time on instagram.com and youtube.com automatically
+- Sends daily report at 11:59 PM with both platform statistics
 - Test button to verify email setup
 
 ### Robust Email Delivery System (New!)
@@ -56,23 +56,26 @@ Chrome extension that tracks daily Instagram usage and automatically emails a re
 
 ### Individual Daily Report
 ```
-Subject: Vincent Daily Instagram Report - Aug 30
-Body: Today's Instagram usage: 2h 34m
+Subject: Vincent Daily Report - Aug 30
+Body: Today's usage:
+Instagram: 2h 34m
+YouTube: 1h 45m
+Total: 4h 19m
 ```
 
 ### Batch Report (Multiple Days)
 ```
-Subject: Vincent Instagram Report - Batch (2025-08-25 to 2025-08-29)
+Subject: Vincent Report - Batch (2025-08-25 to 2025-08-29)
 Body: 
-Instagram Usage Summary (5 days):
+Social Media Usage Summary (5 days):
 
-Aug 25: 1h 23m
-Aug 26: 2h 15m
-Aug 27: 45m
-Aug 28: 3h 10m
-Aug 29: 1h 55m
+Aug 25: Instagram: 1h 23m, YouTube: 2h 10m, Total: 3h 33m
+Aug 26: Instagram: 2h 15m, YouTube: 45m, Total: 3h 0m
+Aug 27: Instagram: 45m, YouTube: 1h 30m, Total: 2h 15m
+Aug 28: Instagram: 3h 10m, YouTube: 2h 5m, Total: 5h 15m
+Aug 29: Instagram: 1h 55m, YouTube: 3h 20m, Total: 5h 15m
 
-Total: 9h 28m
+Total: Instagram: 9h 28m, YouTube: 9h 50m, Combined: 19h 18m
 ```
 
 ## How It Works
@@ -89,6 +92,7 @@ The extension uses a date-based storage system:
   trackingData: {
     "2025-08-30": {
       instagram: 12345,        // milliseconds
+      youtube: 67890,          // milliseconds
       emailSent: false,         // email status
       emailAttempts: 0,         // retry count
       lastAttemptTime: null,    // last attempt timestamp
@@ -102,5 +106,5 @@ The extension uses a date-based storage system:
 
 - **Emails not sending**: Check EmailJS credentials in popup settings
 - **Pending reports**: Click "Send Now" button to manually trigger
-- **Data not tracking**: Ensure you're on instagram.com (not the mobile app)
+- **Data not tracking**: Ensure you're on instagram.com or youtube.com (not mobile apps)
 - **Multiple pending days**: Extension will batch them into one email if > 3 days

@@ -4,7 +4,9 @@ let currentSite = null;
 let lastDateCheck = null;
 
 const TRACKED_SITES = {
-  'instagram.com': 'instagram'
+  'instagram.com': 'instagram',
+  'youtube.com': 'youtube',
+  'www.youtube.com': 'youtube'
 };
 
 const RETENTION_DAYS = 30;
@@ -89,6 +91,7 @@ async function addTime(site, milliseconds) {
   if (!trackingData[today]) {
     trackingData[today] = {
       instagram: 0,
+      youtube: 0,
       emailSent: false,
       emailAttempts: 0,
       lastAttemptTime: null,
@@ -164,20 +167,26 @@ async function sendBatchReport(dates) {
     return;
   }
   
-  let messageBody = `Instagram Usage Summary (${dates.length} days):\n\n`;
+  let messageBody = `Daily Usage Summary (${dates.length} days):\n\n`;
   
   for (const date of dates) {
     const dayData = trackingData[date];
     const instagramTime = formatTime(dayData.instagram || 0);
+    const youtubeTime = formatTime(dayData.youtube || 0);
+    const totalTime = formatTime((dayData.instagram || 0) + (dayData.youtube || 0));
     const formattedDate = formatDateForDisplay(date);
-    messageBody += `${formattedDate}: ${instagramTime}${dayData.isPartialDay ? ' (partial day)' : ''}\n`;
+    messageBody += `${formattedDate}: Instagram: ${instagramTime}, YouTube: ${youtubeTime}, Total: ${totalTime}${dayData.isPartialDay ? ' (partial day)' : ''}\n`;
   }
   
-  const totalTime = dates.reduce((sum, date) => {
+  const totalInstagram = dates.reduce((sum, date) => {
     return sum + (trackingData[date].instagram || 0);
   }, 0);
+  const totalYoutube = dates.reduce((sum, date) => {
+    return sum + (trackingData[date].youtube || 0);
+  }, 0);
+  const totalTime = totalInstagram + totalYoutube;
   
-  messageBody += `\nTotal: ${formatTime(totalTime)}`;
+  messageBody += `\nTotal: Instagram: ${formatTime(totalInstagram)}, YouTube: ${formatTime(totalYoutube)}, Combined: ${formatTime(totalTime)}`;
   
   const emails = [config.toEmail1, config.toEmail2, config.toEmail3].filter(email => email).join(', ');
   
@@ -187,7 +196,7 @@ async function sendBatchReport(dates) {
     user_id: config.publicKey,
     template_params: {
       to_email: emails,
-      subject: `Vincent Instagram Report - Batch (${dates[0]} to ${dates[dates.length - 1]})`,
+      subject: `Vincent Daily Report - Batch (${dates[0]} to ${dates[dates.length - 1]})`,
       message: messageBody
     }
   };
@@ -363,13 +372,15 @@ async function sendDailyReport(dateToReport = null) {
   }
   
   const instagramTime = formatTime(dayData.instagram || 0);
+  const youtubeTime = formatTime(dayData.youtube || 0);
+  const totalTime = formatTime((dayData.instagram || 0) + (dayData.youtube || 0));
   const formattedDate = formatDateForDisplay(reportDate);
   
   const emails = [config.toEmail1, config.toEmail2, config.toEmail3].filter(email => email).join(', ');
   
-  let message = `Today's Instagram usage: ${instagramTime}`;
+  let message = `Today's usage:\nInstagram: ${instagramTime}\nYouTube: ${youtubeTime}\nTotal: ${totalTime}`;
   if (dayData.isPartialDay) {
-    message += ' (partial day tracking)';
+    message += '\n(partial day tracking)';
   }
   
   const emailData = {
@@ -378,7 +389,7 @@ async function sendDailyReport(dateToReport = null) {
     user_id: config.publicKey,
     template_params: {
       to_email: emails,
-      subject: `Vincent Daily Instagram Report - ${formattedDate}`,
+      subject: `Vincent Daily Report - ${formattedDate}`,
       message: message
     }
   };
@@ -455,6 +466,7 @@ chrome.runtime.onInstalled.addListener(async () => {
   if (!trackingData[today]) {
     trackingData[today] = {
       instagram: 0,
+      youtube: 0,
       emailSent: false,
       emailAttempts: 0,
       lastAttemptTime: null,
@@ -479,6 +491,7 @@ async function migrateOldData() {
     const trackingData = {
       [today]: {
         instagram: data.dailyTime.instagram || 0,
+        youtube: data.dailyTime.youtube || 0,
         emailSent: false,
         emailAttempts: 0,
         lastAttemptTime: null,
