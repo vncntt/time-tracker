@@ -2,45 +2,257 @@
 <html>
 <head>
   <style>
-    body { width: 300px; padding: 10px; font-family: monospace; }
-    input { width: 100%; margin: 5px 0; padding: 5px; }
-    button { margin: 10px 0; padding: 5px 10px; }
-    #status { margin: 10px 0; }
-    #times { margin: 20px 0; padding: 10px; background: #f0f0f0; }
+    body { 
+      width: 350px; 
+      padding: 10px; 
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+    
+    h3, h4 { 
+      margin: 10px 0;
+      color: #333;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 10px 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .today-stats {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .today-stats h4 {
+      color: white;
+      margin-top: 0;
+    }
+    
+    .time-display {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 8px 0;
+    }
+    
+    .history-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .history-item:last-child {
+      border-bottom: none;
+    }
+    
+    .date {
+      font-weight: 500;
+      color: #555;
+    }
+    
+    .time {
+      font-weight: 600;
+      color: #333;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-sent {
+      background: #d4f4dd;
+      color: #1e7e34;
+    }
+    
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+    
+    .status-failed {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    .status-partial {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+    
+    input { 
+      width: 100%; 
+      margin: 5px 0; 
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    button { 
+      margin: 8px 4px; 
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+    }
+    
+    .primary-btn {
+      background: #667eea;
+      color: white;
+    }
+    
+    .secondary-btn {
+      background: #48bb78;
+      color: white;
+    }
+    
+    .warning-btn {
+      background: #f56565;
+      color: white;
+    }
+    
+    #status { 
+      margin: 10px 0;
+      padding: 8px;
+      border-radius: 4px;
+      text-align: center;
+      display: none;
+    }
+    
+    #status.success {
+      background: #d4f4dd;
+      color: #1e7e34;
+      display: block;
+    }
+    
+    #status.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+    
+    #status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      display: block;
+    }
+    
+    .collapsible {
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .collapsible:after {
+      content: '\25BC';
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+    
+    .collapsible.active:after {
+      transform: rotate(-180deg);
+    }
+    
+    .collapsible-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    
+    .collapsible-content.show {
+      max-height: 500px;
+    }
+    
+    .alert {
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+    
+    .alert-warning {
+      background: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeaa7;
+    }
+    
+    small {
+      color: #666;
+      font-size: 11px;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
   </style>
 </head>
 <body>
-  <h3>Time Tracker Setup</h3>
+  <h3>Instagram Time Tracker</h3>
   
-  <div id="times">
-    <strong>Today's Instagram:</strong><br>
-    <span id="instagram">0m</span>
+  <!-- Today's Stats -->
+  <div class="card today-stats">
+    <h4>Today's Usage</h4>
+    <div class="time-display" id="todayTime">0m</div>
+    <small id="todayDate"></small>
   </div>
   
-  <h4>EmailJS Configuration:</h4>
-  <input type="email" id="toEmail1" placeholder="First email address">
-  <input type="email" id="toEmail2" placeholder="Second email address (optional)">
-  <input type="text" id="serviceId" placeholder="EmailJS Service ID">
-  <input type="text" id="templateId" placeholder="EmailJS Template ID">
-  <input type="text" id="publicKey" placeholder="EmailJS Public Key">
+  <!-- Pending Reports Alert -->
+  <div id="pendingAlert" class="alert alert-warning" style="display: none;">
+    <strong>Pending Reports:</strong> <span id="pendingCount">0</span> unsent email(s)
+    <button id="sendPending" class="secondary-btn" style="margin-left: 10px; padding: 4px 8px;">Send Now</button>
+  </div>
   
-  <button id="save">Save Settings</button>
-  <button id="test">Send Test Email</button>
+  <!-- History -->
+  <div class="card">
+    <h4 class="collapsible">Last 7 Days</h4>
+    <div class="collapsible-content" id="historyContent">
+      <div id="historyList">Loading...</div>
+    </div>
+  </div>
+  
+  <!-- Email Configuration -->
+  <div class="card">
+    <h4 class="collapsible">Email Settings</h4>
+    <div class="collapsible-content" id="settingsContent">
+      <input type="email" id="toEmail1" placeholder="Primary email address">
+      <input type="email" id="toEmail2" placeholder="Secondary email (optional)">
+      <input type="text" id="serviceId" placeholder="EmailJS Service ID">
+      <input type="text" id="templateId" placeholder="EmailJS Template ID">
+      <input type="text" id="publicKey" placeholder="EmailJS Public Key">
+      
+      <div class="button-group">
+        <button id="save" class="primary-btn">Save Settings</button>
+        <button id="test" class="secondary-btn">Send Test</button>
+      </div>
+      
+      <small>
+        <strong>Setup:</strong> Get your credentials from 
+        <a href="https://emailjs.com" target="_blank">emailjs.com</a>
+      </small>
+    </div>
+  </div>
   
   <div id="status"></div>
-  
-  <hr>
-  <small>
-    <strong>Setup Instructions:</strong><br>
-    1. Go to emailjs.com and create free account<br>
-    2. Add email service (Gmail)<br>
-    3. Create email template with variables:<br>
-       - {{to_email}}<br>
-       - {{subject}}<br>
-       - {{message}}<br>
-    4. Copy Service ID, Template ID, and Public Key<br>
-    5. Paste them above and click Save
-  </small>
   
   <script src="popup.js"></script>
 </body>
