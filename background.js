@@ -179,7 +179,7 @@ async function sendBatchReport(dates) {
   
   messageBody += `\nTotal: ${formatTime(totalTime)}`;
   
-  const emails = [config.toEmail1, config.toEmail2].filter(email => email).join(', ');
+  const emails = [config.toEmail1, config.toEmail2, config.toEmail3].filter(email => email).join(', ');
   
   const emailData = {
     service_id: config.serviceId,
@@ -365,7 +365,7 @@ async function sendDailyReport(dateToReport = null) {
   const instagramTime = formatTime(dayData.instagram || 0);
   const formattedDate = formatDateForDisplay(reportDate);
   
-  const emails = [config.toEmail1, config.toEmail2].filter(email => email).join(', ');
+  const emails = [config.toEmail1, config.toEmail2, config.toEmail3].filter(email => email).join(', ');
   
   let message = `Today's Instagram usage: ${instagramTime}`;
   if (dayData.isPartialDay) {

@@ -17,7 +17,7 @@ Chrome extension that tracks daily Instagram usage and automatically emails a re
 
 3. **Set Recipients**
    - Click extension icon
-   - Enter up to 2 email addresses
+   - Enter up to 3 email addresses
    - Paste EmailJS credentials
    - Save settings
 

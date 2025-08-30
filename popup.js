@@ -108,6 +108,7 @@ async function loadSettings() {
   if (data.emailConfig) {
     document.getElementById('toEmail1').value = data.emailConfig.toEmail1 || '';
     document.getElementById('toEmail2').value = data.emailConfig.toEmail2 || '';
+    document.getElementById('toEmail3').value = data.emailConfig.toEmail3 || '';
     document.getElementById('serviceId').value = data.emailConfig.serviceId || '';
     document.getElementById('templateId').value = data.emailConfig.templateId || '';
     document.getElementById('publicKey').value = data.emailConfig.publicKey || '';
@@ -155,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const config = {
       toEmail1: document.getElementById('toEmail1').value,
       toEmail2: document.getElementById('toEmail2').value,
+      toEmail3: document.getElementById('toEmail3').value,
       serviceId: document.getElementById('serviceId').value,
       templateId: document.getElementById('templateId').value,
       publicKey: document.getElementById('publicKey').value
@@ -186,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     showStatus('Sending test email...', 'info');
     
-    const emails = [config.toEmail1, config.toEmail2].filter(email => email).join(', ');
+    const emails = [config.toEmail1, config.toEmail2, config.toEmail3].filter(email => email).join(', ');
     
     const emailData = {
       service_id: config.serviceId,
