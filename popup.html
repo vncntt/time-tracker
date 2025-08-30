@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 300px; padding: 10px; font-family: monospace; }
+    input { width: 100%; margin: 5px 0; padding: 5px; }
+    button { margin: 10px 0; padding: 5px 10px; }
+    #status { margin: 10px 0; }
+    #times { margin: 20px 0; padding: 10px; background: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h3>Time Tracker Setup</h3>
+  
+  <div id="times">
+    <strong>Today's Instagram:</strong><br>
+    <span id="instagram">0m</span>
+  </div>
+  
+  <h4>EmailJS Configuration:</h4>
+  <input type="email" id="toEmail1" placeholder="First email address">
+  <input type="email" id="toEmail2" placeholder="Second email address (optional)">
+  <input type="text" id="serviceId" placeholder="EmailJS Service ID">
+  <input type="text" id="templateId" placeholder="EmailJS Template ID">
+  <input type="text" id="publicKey" placeholder="EmailJS Public Key">
+  
+  <button id="save">Save Settings</button>
+  <button id="test">Send Test Email</button>
+  
+  <div id="status"></div>
+  
+  <hr>
+  <small>
+    <strong>Setup Instructions:</strong><br>
+    1. Go to emailjs.com and create free account<br>
+    2. Add email service (Gmail)<br>
+    3. Create email template with variables:<br>
+       - {{to_email}}<br>
+       - {{subject}}<br>
+       - {{message}}<br>
+    4. Copy Service ID, Template ID, and Public Key<br>
+    5. Paste them above and click Save
+  </small>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

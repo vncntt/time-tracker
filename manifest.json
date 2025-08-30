@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Time Tracker",
+  "version": "1.0",
+  "description": "Tracks time on Instagram and YouTube, sends daily reports",
+  
+  "permissions": [
+    "tabs",
+    "storage",
+    "alarms"
+  ],
+  
+  "host_permissions": [
+    "https://api.emailjs.com/*"
+  ],
+  
+  "background": {
+    "service_worker": "background.js"
+  },
+  
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
