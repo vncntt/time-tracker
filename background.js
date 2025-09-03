@@ -53,8 +53,16 @@ function getSiteFromUrl(url) {
 async function updateTracking() {
   // Check for date change
   if (hasDateChanged() && lastDateCheck) {
-    console.log('Date changed, triggering report for previous day');
-    await sendDailyReport(new Date(lastDateCheck + 'T23:59:00'));
+    console.log('Date changed, checking if report needed for previous day');
+    // Only send if not already handled by checkAndSendPendingReports
+    const data = await chrome.storage.local.get(['trackingData']);
+    const trackingData = data.trackingData || {};
+    const prevDayData = trackingData[lastDateCheck];
+    
+    if (prevDayData && !prevDayData.emailSent && !prevDayData.emailSendInProgress) {
+      console.log('Triggering report for previous day');
+      await sendDailyReport(new Date(lastDateCheck + 'T23:59:00'));
+    }
   }
   
   const tab = await getCurrentTab();
@@ -142,6 +150,12 @@ async function checkAndSendPendingReports() {
   // Sort dates chronologically
   pendingDays.sort();
   
+  // Mark all pending emails as in progress to prevent duplicates
+  for (const date of pendingDays) {
+    trackingData[date].emailSendInProgress = true;
+  }
+  await chrome.storage.local.set({ trackingData });
+  
   // Decide whether to batch or send individually
   if (pendingDays.length > BATCH_THRESHOLD) {
     await sendBatchReport(pendingDays);
@@ -220,15 +234,21 @@ async function sendBatchReport(dates) {
       await chrome.storage.local.set({ trackingData });
     } else {
       console.error('Failed to send batch email');
-      // Update attempt counts
+      // Update attempt counts and clear in-progress flag
       for (const date of dates) {
         trackingData[date].emailAttempts = (trackingData[date].emailAttempts || 0) + 1;
         trackingData[date].lastAttemptTime = new Date().toISOString();
+        trackingData[date].emailSendInProgress = false;
       }
       await chrome.storage.local.set({ trackingData });
     }
   } catch (error) {
     console.error('Error sending batch email:', error);
+    // Clear in-progress flag on error
+    for (const date of dates) {
+      trackingData[date].emailSendInProgress = false;
+    }
+    await chrome.storage.local.set({ trackingData });
   }
 }
 
@@ -263,7 +283,7 @@ async function cleanupOldData() {
 }
 
 chrome.tabs.onActivated.addListener(updateTracking);
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status === 'complete' || changeInfo.url) {
     updateTracking();
   }
@@ -310,11 +330,10 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
 });
 
 function getNext1159PM() {
-  const now = new Date();
   const target = new Date();
   target.setHours(23, 59, 0, 0);
   
-  if (now >= target) {
+  if (new Date() >= target) {
     target.setDate(target.getDate() + 1);
   }
   
@@ -322,7 +341,6 @@ function getNext1159PM() {
 }
 
 function getNextMidnight() {
-  const now = new Date();
   const target = new Date();
   target.setDate(target.getDate() + 1);
   target.setHours(0, 0, 0, 0);
@@ -513,7 +531,7 @@ async function clearStuckEmails() {
   
   let updated = false;
   
-  for (const [date, dayData] of Object.entries(trackingData)) {
+  for (const dayData of Object.values(trackingData)) {
     if (dayData.emailSendInProgress) {
       // Clear flag if it's been more than 60 seconds
       const lastAttempt = dayData.lastAttemptTime ? new Date(dayData.lastAttemptTime) : null;
@@ -533,7 +551,7 @@ async function clearStuckEmails() {
 setInterval(updateTracking, 1000);
 
 // Export for manual triggers from popup
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _, sendResponse) => {
   if (request.action === 'sendPendingReports') {
     checkAndSendPendingReports().then(() => {
       sendResponse({ success: true });

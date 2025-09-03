@@ -108,3 +108,17 @@ The extension uses a date-based storage system:
 - **Pending reports**: Click "Send Now" button to manually trigger
 - **Data not tracking**: Ensure you're on instagram.com or youtube.com (not mobile apps)
 - **Multiple pending days**: Extension will batch them into one email if > 3 days
+
+## Recent Fixes
+
+### Duplicate Email Fix (Dec 2024)
+**Issue**: When Chrome was opened after midnight (e.g., 12:10 AM), two emails would be sent for the previous day's data.
+
+**Cause**: Two independent mechanisms were both trying to send the cached email:
+1. `chrome.runtime.onStartup` → `checkAndSendPendingReports()` 
+2. `updateTracking()` (runs every second) → detecting date change → `sendDailyReport()`
+
+**Solution**: 
+- Added check in `updateTracking()` to verify email hasn't been sent and isn't in progress before triggering `sendDailyReport()`
+- Set `emailSendInProgress` flag immediately when `checkAndSendPendingReports()` starts processing pending emails
+- This ensures only one mechanism can send the email at a time, preventing duplicates
