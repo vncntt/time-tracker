@@ -38,14 +38,16 @@ async function updateTodayStats() {
   const today = getDateString();
   const data = await chrome.storage.local.get(['trackingData']);
   const trackingData = data.trackingData || {};
-  const todayData = trackingData[today] || { instagram: 0, youtube: 0 };
+  const todayData = trackingData[today] || { instagram: 0, youtube: 0, x: 0 };
   
   const instagramMs = todayData.instagram || 0;
   const youtubeMs = todayData.youtube || 0;
-  const totalMs = instagramMs + youtubeMs;
+  const xMs = todayData.x || 0;
+  const totalMs = instagramMs + youtubeMs + xMs;
   
   document.getElementById('instagramTime').textContent = formatTime(instagramMs);
   document.getElementById('youtubeTime').textContent = formatTime(youtubeMs);
+  document.getElementById('xTime').textContent = formatTime(xMs);
   document.getElementById('totalTime').textContent = formatTime(totalMs);
   document.getElementById('todayDate').textContent = formatDateForDisplay(today);
 }
@@ -67,8 +69,8 @@ async function updateHistory() {
   // Check for pending reports
   let pendingCount = 0;
   const historyHTML = dates.map(date => {
-    const dayData = trackingData[date] || { instagram: 0, youtube: 0, emailSent: false };
-    const totalTime = (dayData.instagram || 0) + (dayData.youtube || 0);
+    const dayData = trackingData[date] || { instagram: 0, youtube: 0, x: 0, emailSent: false };
+    const totalTime = (dayData.instagram || 0) + (dayData.youtube || 0) + (dayData.x || 0);
     
     if (!dayData.emailSent && date < getDateString() && totalTime > 0) {
       pendingCount++;
@@ -89,10 +91,11 @@ async function updateHistory() {
     
     const instagramTime = formatTime(dayData.instagram || 0);
     const youtubeTime = formatTime(dayData.youtube || 0);
+    const xTime = formatTime(dayData.x || 0);
     const displayTime = totalTime > 0 ? 
       `<div style="text-align: right;">
         <div class="time">${formatTime(totalTime)}</div>
-        <small style="color: #888; font-size: 10px;">IG: ${instagramTime} | YT: ${youtubeTime}</small>
+        <small style="color: #888; font-size: 10px;">IG: ${instagramTime} | YT: ${youtubeTime} | X: ${xTime}</small>
       </div>` : 
       '<span class="time">0m</span>';
     
@@ -192,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const today = getDateString();
     const data = await chrome.storage.local.get(['trackingData', 'emailConfig']);
     const trackingData = data.trackingData || {};
-    const todayData = trackingData[today] || { instagram: 0, youtube: 0 };
+    const todayData = trackingData[today] || { instagram: 0, youtube: 0, x: 0 };
     const config = data.emailConfig;
     
     if (!config || !config.toEmail1 || !config.serviceId || !config.templateId || !config.publicKey) {
@@ -202,7 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const instagramTime = formatTime(todayData.instagram || 0);
     const youtubeTime = formatTime(todayData.youtube || 0);
-    const totalTime = formatTime((todayData.instagram || 0) + (todayData.youtube || 0));
+    const xTime = formatTime(todayData.x || 0);
+    const totalTime = formatTime((todayData.instagram || 0) + (todayData.youtube || 0) + (todayData.x || 0));
     
     showStatus('Sending test email...', 'info');
     
@@ -215,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
       template_params: {
         to_email: emails,
         subject: `Vincent Daily Report (TEST)`,
-        message: `Today's usage:\nInstagram: ${instagramTime}\nYouTube: ${youtubeTime}\nTotal: ${totalTime}\n\nThis is a test email from your tracking extension.`
+        message: `Today's usage:\nInstagram: ${instagramTime}\nYouTube: ${youtubeTime}\nX: ${xTime}\nTotal: ${totalTime}\n\nThis is a test email from your tracking extension.`
       }
     };
     
