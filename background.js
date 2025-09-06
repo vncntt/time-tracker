@@ -54,7 +54,10 @@ async function updateTracking() {
   // Check for date change
   if (hasDateChanged() && lastDateCheck) {
     console.log('Date changed, checking if report needed for previous day');
-    // Only send if not already handled by checkAndSendPendingReports
+    // Add delay to let onStartup handler run first
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Re-check after delay to avoid race condition
     const data = await chrome.storage.local.get(['trackingData']);
     const trackingData = data.trackingData || {};
     const prevDayData = trackingData[lastDateCheck];
